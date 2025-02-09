@@ -4,7 +4,6 @@ import outputs from "@/amplify_outputs.json";
 import { Authenticator } from '@aws-amplify/ui-react';
 import { StorageImage } from '@aws-amplify/ui-react-storage';
 import "@aws-amplify/ui-react/styles.css";
-import { PollyClient, SynthesizeSpeechCommand } from '@aws-sdk/client-polly';
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 import { Amplify } from "aws-amplify";
@@ -17,7 +16,23 @@ import "./../app/app.css";
 Amplify.configure(outputs);
 
 const client = generateClient<Schema>();
-const pollyClient = new PollyClient({ region: 'ap-southeast-1' });
+
+// Function to convert blob to base64
+const blobToBase64 = async (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result?.toString()?.replace(/^data:image\/\w+;base64,/, '');
+      if (base64String) {
+        resolve(base64String);
+      } else {
+        reject(new Error('Failed to convert blob to base64'));
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -45,29 +60,29 @@ export default function Home() {
   }, []);
 
   // TODO: uncomment
-  // // Start/stop monitoring when isRecording changes
-  // useEffect(() => {
-  //   if (isRecording) {
-  //     const interval = setInterval(captureAndAnalyze, 30000);
-  //     setMonitorInterval(interval);
-  //   } else {
-  //     if (monitorInterval) {
-  //       clearInterval(monitorInterval);
-  //       setMonitorInterval(null);
-  //     }
-  //   }
+  // Start/stop monitoring when isRecording changes
+  useEffect(() => {
+    if (isRecording) {
+      const interval = setInterval(captureAndAnalyze, 30000);
+      setMonitorInterval(interval);
+    } else {
+      if (monitorInterval) {
+        clearInterval(monitorInterval);
+        setMonitorInterval(null);
+      }
+    }
 
-  //   return () => {
-  //     if (monitorInterval) {
-  //       clearInterval(monitorInterval);
-  //     }
-  //   };
-  // },  [isRecording]);
+    return () => {
+      if (monitorInterval) {
+        clearInterval(monitorInterval);
+      }
+    };
+  },  [isRecording]);
 
   // TODO: delete
-  useEffect(() => {
-    captureAndAnalyze();
-  }, [isRecording]);
+  // useEffect(() => {
+  //   captureAndAnalyze();
+  // }, [isRecording]);
 
   // Monitor baby status and respond if needed
   useEffect(() => {
@@ -117,7 +132,16 @@ export default function Home() {
     if (!ctx) return;
     ctx.drawImage(videoRef.current, 0, 0);
     const imageData = canvas.toDataURL('image/jpeg');
-    const imageBase64 = imageData.replace(/^data:image\/\w+;base64,/, '');
+    let imageBase64 = imageData.replace(/^data:image\/\w+;base64,/, '');
+
+    // // For testing - properly wait for the test image
+    // try {
+    //   const testImage = await fetch('/samplePhotos/sleep.jpg');
+    //   const blob = await testImage.blob();
+    //   imageBase64 = await blobToBase64(blob);
+    // } catch (error) {
+    //   console.error('Error loading test image:', error);
+    // }
 
     // =========2. Capture 5s audio snippet ===========
     // Get the current stream from video element (包括音频)

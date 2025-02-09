@@ -1,25 +1,60 @@
-## AWS Amplify Next.js (App Router) Starter Template
+# 项目概述
+【婴幼儿监护帮手】旨在通过电脑摄像头和麦克风实现对婴幼儿的实时监控与状态分析。项目通过定时抓拍婴幼儿的图像、声音以及面部表情，利用先进的音视频处理技术和 AWS 提供的各项服务，实时识别婴幼儿的状态（例如睡眠、哭闹、饥饿或不舒适等），并作出相应反馈（如通过电脑发出语音提示）。整个监控结果和分析数据均上传至云端，以便后续查询与统计。
 
-This repository provides a starter template for creating applications using Next.js (App Router) and AWS Amplify, emphasizing easy setup for authentication, API, and database capabilities.
+# 项目功能
 
-## Overview
+## 实时视频监控
+利用电脑摄像头捕捉固定区域内婴幼儿的视频流，实现实时监控。通过页面上的视频组件展示监控画面，并支持启停控制。
 
-This template equips you with a foundational Next.js application integrated with AWS Amplify, streamlined for scalability and performance. It is ideal for developers looking to jumpstart their project with pre-configured AWS services like Cognito, AppSync, and DynamoDB.
+## 定时多模态数据抓取
+* 图像抓拍：通过HTML5 Canvas对摄像头视频进行截图，将图片上传至S3存储。
+* 音频采录：利用浏览器的MediaRecorder对摄像头传入的音频进行5秒的采录，将采录的音频上传至S3存储，后续实现音频特征的提取和分析。
 
-## Features
+## 智能状态分析
+* 对婴幼儿的图像进行分析，识别婴幼儿表情及状态。
+* 结合音频采集的 RMS 均方根音量、频谱数据等，推断婴幼儿是否处于哭闹状态、睡眠状态或其他状态。
+* 收集图片和音频的其它辅助特征，综合判断来获取更精准的婴幼儿状态分析结果。
+* 在页面显示详细的原始数据及分析结果。
 
-- **Authentication**: Setup with Amazon Cognito for secure user authentication.
-- **API**: Ready-to-use GraphQL endpoint with AWS AppSync.
-- **Database**: Real-time database powered by Amazon DynamoDB.
+## 数据存储与历史记录管理
+* 将抓拍到的图像和音频上传至S3存储。
+* 将分析结果、图像和音频的S3路径等信息记录到云端，方便后续查询和历史数据统计。
 
-## Deploying to AWS
+## 自动化语音反馈
+根据婴幼儿当前状态（例如哭闹），自动通过浏览器播放相应的语音指令（比如“天猫精灵，播放摇篮曲”），从而间接控制家中IoT设备进行安抚。
 
-For detailed instructions on deploying your application, refer to the [deployment section](https://docs.amplify.aws/nextjs/start/quickstart/nextjs-app-router-client-components/#deploy-a-fullstack-app-to-aws) of our documentation.
 
-## Security
+# 技术架构
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+## 云服务
+* AWS Amplify：统一配置和管理各项 AWS 后端服务，包括身份认证、数据存储及文件上传。
+* S3 与 DynamoDB：通过Amplify backend进行配置，分别用于存储婴幼儿的监控图像、音频文件和记录详细的状态分析数据。
+* AWS Polly：合成语音，支持自动语音反馈功能。
+* Amazon Rekognition: 识别婴幼儿表情及状态。
+* Amazon Bedrock: 利用大模型对多模态数据进行综合判断分析。
+* Amazon Polly: 生成语音指令以控制IoT设备。
 
-## License
+## 前端
+* Next.js 和 React：用于构建单页实时监控及数据展示页面.
+* Material UI：提供现代化的UI元素和响应式设计，构建轻量美观的用户界面。
+* AWS Amplify UI 组件：实现用户认证和与后端服务的交互。
 
-This library is licensed under the MIT-0 License. See the LICENSE file.
+## 视频音频采集与处理
+* HTML5 Media API：捕获视频和音频流。
+* Canvas API：实现视频截图，并将图像数据转换处理为 Base64 格式。
+* MediaRecorder & Web Audio API：采集并分析音频数据，计算音频的 RMS、频谱和能量变化模式。
+
+## 后端与数据服务
+* AWS SDK（如S3、Amplify、Polly）：执行图像及音频的存储处理，与各项 AWS 服务无缝集成。
+* Next.js API接口：用于处理前端提交的多模态数据、执行状态分析以及生成语音反馈。
+
+# 技术亮点
+
+* 多模态实时监控：结合视频和音频数据的实时抓取，实现对婴幼儿状态的全面监控和分析。
+* 云端存储与分析：充分利用AWS服务进行数据存储和语音合成，既保证数据安全性，也方便未来进行大数据分析和模型优化。
+* 自动化反馈机制：在推断婴幼儿哭闹时，自动通过电脑发出预设的语音指令，间接实现对家用设备的联动响应。
+
+# 未来展望
+* 更精准的AI分析: 随着AI模型的不断进步，未来可结合更多生理大数据和视频面部识别，提高婴幼儿状态识别的准确率。
+* 多设备联动: 扩展对更多IoT设备的直接控制能力，实现联动安抚系统（例如智能温控、灯光调节等），为家长打造更智能的监护环境。
+* 可定制的监控方案: 根据不同用户的需求，提供更多自定义参数及报警方案，例如定时拍摄间隔、监控区域设定、报警规则定制等。

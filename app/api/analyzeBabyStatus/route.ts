@@ -4,14 +4,14 @@ import { NextResponse } from 'next/server';
 
 // 添加调试日志
 console.log('Environment variables check:', {
-  accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID?.slice(0, 5), // 只打印前几位，避免泄露
-  secretKeyExists: !!process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-  region: process.env.NEXT_PUBLIC_AWS_REGION
+  accessKeyId: process.env.NEXT_AWS_ACCESS_KEY_ID?.slice(0, 5), // 只打印前几位，避免泄露
+  secretKeyExists: !!process.env.NEXT_AWS_SECRET_ACCESS_KEY,
+  region: process.env.NEXT_AWS_REGION
 });
 
-const accessKeyId = process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID;
-const secretAccessKey = process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY;
-const region = process.env.NEXT_PUBLIC_AWS_REGION || 'ap-southeast-1';
+const accessKeyId = process.env.NEXT_AWS_ACCESS_KEY_ID;
+const secretAccessKey = process.env.NEXT_AWS_SECRET_ACCESS_KEY;
+const region = process.env.NEXT_AWS_REGION || 'ap-southeast-1';
 
 // 添加更严格的验证
 if (!accessKeyId || !secretAccessKey) {

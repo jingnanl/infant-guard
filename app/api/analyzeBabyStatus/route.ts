@@ -30,8 +30,12 @@ const awsConfig = {
   }
 };
 
-const bedrockClient = new BedrockRuntimeClient(awsConfig);
-const rekognitionClient = new RekognitionClient(awsConfig);
+// const bedrockClient = new BedrockRuntimeClient(awsConfig);
+// const rekognitionClient = new RekognitionClient(awsConfig);
+
+const bedrockClient = new BedrockRuntimeClient({ region: 'ap-southeast-1' });
+const rekognitionClient = new RekognitionClient({ region: 'ap-southeast-1' });
+
 
 export async function POST(request: Request) {
   try {

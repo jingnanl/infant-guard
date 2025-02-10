@@ -2,20 +2,36 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import { DetectFacesCommand, RekognitionClient } from "@aws-sdk/client-rekognition";
 import { NextResponse } from 'next/server';
 
-const bedrockClient = new BedrockRuntimeClient({
-    region: 'ap-southeast-1',
-    credentials: {
-        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID as string,
-        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY as string,
-    },
+// 添加调试日志
+console.log('Environment variables check:', {
+  accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID?.slice(0, 5), // 只打印前几位，避免泄露
+  secretKeyExists: !!process.env.MY_AWS_SECRET_ACCESS_KEY,
+  region: process.env.MY_AWS_REGION
 });
-const rekognitionClient = new RekognitionClient({
-    region: 'ap-southeast-1',
-    credentials: {
-        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID as string,
-        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY as string,
-    },
-});
+
+const accessKeyId = process.env.MY_AWS_ACCESS_KEY_ID;
+const secretAccessKey = process.env.MY_AWS_SECRET_ACCESS_KEY;
+const region = process.env.MY_AWS_REGION || 'ap-southeast-1';
+
+// 添加更严格的验证
+if (!accessKeyId || !secretAccessKey) {
+  throw new Error('AWS Credentials are missing or invalid');
+}
+
+if (accessKeyId.trim() === '' || secretAccessKey.trim() === '') {
+  throw new Error('AWS Credentials cannot be empty strings');
+}
+
+const awsConfig = {
+  region,
+  credentials: {
+    accessKeyId,
+    secretAccessKey
+  }
+};
+
+const bedrockClient = new BedrockRuntimeClient(awsConfig);
+const rekognitionClient = new RekognitionClient(awsConfig);
 
 export async function POST(request: Request) {
   try {

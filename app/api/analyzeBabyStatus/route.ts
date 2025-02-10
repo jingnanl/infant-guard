@@ -2,8 +2,20 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import { DetectFacesCommand, RekognitionClient } from "@aws-sdk/client-rekognition";
 import { NextResponse } from 'next/server';
 
-const bedrockClient = new BedrockRuntimeClient({ region: 'ap-southeast-1' });
-const rekognitionClient = new RekognitionClient({ region: 'ap-southeast-1' });
+const bedrockClient = new BedrockRuntimeClient({
+    region: 'ap-southeast-1',
+    credentials: {
+        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY as string,
+    },
+});
+const rekognitionClient = new RekognitionClient({
+    region: 'ap-southeast-1',
+    credentials: {
+        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY as string,
+    },
+});
 
 export async function POST(request: Request) {
   try {
